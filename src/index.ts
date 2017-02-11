@@ -38,7 +38,7 @@ function initialAdd() {
   console.log("adding all files from %s", config.inputDir)
   let files = fs.readdirSync(config.inputDir);
   files
-    .filter(it => fs.statSync(it).isFile())
+    .filter(it => fs.statSync(Path.join(config.inputDir, it)).isFile())
     .forEach(addFile);
   workQueue();
 }
