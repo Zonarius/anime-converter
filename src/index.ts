@@ -43,11 +43,13 @@ function main() {
     callback: fileChange
   })
   console.log("Watching %s...", config.inputDir)
-  addFile("File1.mkv");
-  addFile("File2.mkv");
-  addFile("File3.mkv");
-  addFile("File4.mkv");
-  //initialAdd();
+  // addFile("File1.mkv");
+  // addFile("File2.mkv");
+  // addFile("File3.mkv");
+  // addFile("File4.mkv");
+  // transcodingStatus.working = true;
+  // transcodingStatus.currentFile = "kalsfj.mkv";
+  initialAdd();
 }
 
 async function initialAdd() {
@@ -176,7 +178,7 @@ function asyncFilter<T>(array: T[], predicate: (T) => Promise<boolean>): Promise
 
 function deleteFromQueue(id: string) {
   let index = transcodingStatus.queue.findIndex(it => it.id === id);
-  if (index >= 0) {
+  if (index < 0) {
     throw "Item not found";
   } else {
     transcodingStatus.queue.splice(index, 1);

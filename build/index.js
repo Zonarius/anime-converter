@@ -49,11 +49,13 @@ function main() {
         callback: fileChange
     });
     console.log("Watching %s...", config.inputDir);
-    addFile("File1.mkv");
-    addFile("File2.mkv");
-    addFile("File3.mkv");
-    addFile("File4.mkv");
-    //initialAdd();
+    // addFile("File1.mkv");
+    // addFile("File2.mkv");
+    // addFile("File3.mkv");
+    // addFile("File4.mkv");
+    // transcodingStatus.working = true;
+    // transcodingStatus.currentFile = "kalsfj.mkv";
+    initialAdd();
 }
 function initialAdd() {
     return __awaiter(this, void 0, void 0, function* () {
@@ -173,7 +175,7 @@ function asyncFilter(array, predicate) {
 }
 function deleteFromQueue(id) {
     let index = transcodingStatus.queue.findIndex(it => it.id === id);
-    if (index >= 0) {
+    if (index < 0) {
         throw "Item not found";
     }
     else {
