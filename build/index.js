@@ -1,4 +1,12 @@
 "use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 const inotify_1 = require("inotify");
 const Path = require("path");
 const ffmpeg = require("fluent-ffmpeg");
@@ -31,28 +39,25 @@ function main() {
     initialAdd();
 }
 function initialAdd() {
-    console.log("adding all files from %s", config.inputDir);
-    let files = fs.readdirSync(config.inputDir);
-    files
-        .filter(it => fs.statSync(Path.join(config.inputDir, it)).isFile())
-        .forEach(addFile);
-    workQueue();
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log("adding all files from %s", config.inputDir);
+        let files = fs.readdirSync(config.inputDir);
+        files = files.filter(it => fs.statSync(Path.join(config.inputDir, it)).isFile());
+        files = yield asyncFilter(files, isTranscodable);
+        files.forEach(addFile);
+        workQueue();
+    });
 }
 function fileChange(event) {
-    console.log("Found file %s", event.name);
-    let filepath = Path.join(config.inputDir, event.name);
-    ffmpeg(filepath).ffprobe((err, data) => {
-        if (err) {
-            console.log("But it doesn't seem to be a video");
-            return;
-        }
-        if (data.streams.some(it => it.codec_type === "subtitle")) {
+    return __awaiter(this, void 0, void 0, function* () {
+        console.log("Found file %s", event.name);
+        if (yield isTranscodable(event.name)) {
             console.log("File %s has soft subs! Adding to queue", event.name);
             addFile(event.name);
             workQueue();
         }
         else {
-            console.log("But it has no subtitles!");
+            console.log("But it's not transcodable");
         }
     });
 }
@@ -123,5 +128,28 @@ function addFile(filename) {
 }
 function ffescape(filename) {
     return "'" + filename.replace(/'/g, "'\\''") + "'";
+}
+function isTranscodable(filename) {
+    let filepath = Path.join(config.inputDir, filename);
+    return new Promise((res, rej) => {
+        ffmpeg(filepath).ffprobe((err, data) => {
+            if (err) {
+                return res(false);
+            }
+            if (data.streams.some(it => it.codec_type === "subtitle")) {
+                return res(true);
+            }
+            else {
+                return res(false);
+            }
+        });
+    });
+}
+function asyncFilter(array, predicate) {
+    let promises = [];
+    array.forEach(val => {
+        promises.push(predicate(val));
+    });
+    return Promise.all(promises).then(results => array.filter((val, i) => results[i]));
 }
 main();

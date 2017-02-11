@@ -17,7 +17,7 @@ nunjucks.configure(Path.resolve(__dirname, "..", "server"), {
 })
 
 exp.use('/', express.static(Path.resolve(__dirname, "..", "server")))
-exp.get('/status', (req,res) => {
+exp.get('/status', (req, res) => {
   res.send(transcodingStatus);
 })
 
@@ -34,35 +34,28 @@ function main() {
   initialAdd();
 }
 
-function initialAdd() {
+async function initialAdd() {
   console.log("adding all files from %s", config.inputDir)
   let files = fs.readdirSync(config.inputDir);
-  files
-    .filter(it => fs.statSync(Path.join(config.inputDir, it)).isFile())
-    .forEach(addFile);
+  files = files.filter(it => fs.statSync(Path.join(config.inputDir, it)).isFile())
+  files = await asyncFilter(files, isTranscodable);
+  files.forEach(addFile);
   workQueue();
 }
 
-function fileChange(event: Event) {
+async function fileChange(event: Event) {
   console.log("Found file %s", event.name);
-  let filepath = Path.join(config.inputDir, event.name);
-  ffmpeg(filepath).ffprobe((err, data: any) => {
-    if (err) {
-      console.log("But it doesn't seem to be a video");
-      return;
-    }
-    if (data.streams.some(it => it.codec_type === "subtitle")) {
-      console.log("File %s has soft subs! Adding to queue", event.name);
-      addFile(event.name);
-      workQueue();
-    } else {
-      console.log("But it has no subtitles!");
-    }
-  });
+  if (await isTranscodable(event.name)) {
+    console.log("File %s has soft subs! Adding to queue", event.name);
+    addFile(event.name);
+    workQueue();
+  } else {
+    console.log("But it's not transcodable");
+  }
 }
 
 
-let transcodingStatus : Status = {
+let transcodingStatus: Status = {
   working: false,
   currentFile: "",
   currentProgress: 0,
@@ -136,6 +129,30 @@ function addFile(filename: string) {
 
 function ffescape(filename: string) {
   return "'" + filename.replace(/'/g, "'\\''") + "'";
+}
+
+function isTranscodable(filename: string): Promise<boolean> {
+  let filepath = Path.join(config.inputDir, filename);
+  return new Promise((res, rej) => {
+    ffmpeg(filepath).ffprobe((err, data: any) => {
+      if (err) {
+        return res(false);
+      }
+      if (data.streams.some(it => it.codec_type === "subtitle")) {
+        return res(true);
+      } else {
+        return res(false);
+      }
+    });
+  });
+}
+
+function asyncFilter<T>(array: T[], predicate : (T) => Promise<boolean>) : Promise<T[]> {
+  let promises = [];
+  array.forEach(val => {
+    promises.push(predicate(val));
+  })
+  return Promise.all(promises).then(results => array.filter((val, i) => results[i]))
 }
 
 main();
