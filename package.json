@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node ./build/index.js"
+    "start": "tsc && node ./build/index.js",
+    "install": "copyfiles -u 3 node_modules/bootstrap/dist/**/* server/static"
   },
   "repository": {
     "type": "git",
@@ -18,10 +19,15 @@
   },
   "homepage": "https://github.com/Zonarius/anime-converter#readme",
   "dependencies": {
+    "bootstrap": "3",
+    "copyfiles": "^1.2.0",
+    "express": "^4.14.1",
     "fluent-ffmpeg": "^2.1.0",
-    "inotify": "^1.4.1"
+    "inotify": "^1.4.1",
+    "nunjucks": "^3.0.0"
   },
   "devDependencies": {
+    "@types/express": "^4.0.35",
     "@types/fluent-ffmpeg": "^0.0.2",
     "@types/node": "^7.0.5"
   }
