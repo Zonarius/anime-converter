@@ -1,0 +1,5 @@
+{
+  "inputDir": "/home/zonarius/test",
+  "outputDir": "/home/zonarius/test/output",
+  "httpPort": "8086"
+}
