@@ -82,7 +82,7 @@ function workQueue() {
     ffmpeg(input)
         .videoFilter({
         filter: "subtitles",
-        options: input
+        options: ffescape(input)
     })
         .on('start', () => {
         transcodingStatus.working = true;
@@ -120,5 +120,8 @@ function addFile(filename) {
         filename,
         id: uuid.v4()
     });
+}
+function ffescape(filename) {
+    return "'" + filename.replace(/'/g, "'\\''") + "'";
 }
 main();
