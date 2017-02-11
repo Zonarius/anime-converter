@@ -20,6 +20,18 @@ exp.use('/', express.static(Path.resolve(__dirname, "..", "server")))
 exp.get('/status', (req, res) => {
   res.send(transcodingStatus);
 })
+exp.get('/delete/:id', (req, res) => {
+  try {
+    deleteFromQueue(req.params.id);
+    res.send({ message: "ok" , queue: transcodingStatus.queue})
+  } catch (message) {
+    res.send({ message });
+  }
+})
+exp.get('kill', (req, res) => {
+  kill();
+  res.send({message: "ok"});
+})
 
 function main() {
   let port = config.httpPort || 8080;
@@ -62,6 +74,8 @@ let transcodingStatus: Status = {
   queue: []
 }
 
+let currentCommand;
+
 function workQueue() {
   if (transcodingStatus.working) {
     return;
@@ -81,7 +95,7 @@ function workQueue() {
     workQueue();
     return;
   }
-  ffmpeg(input)
+  currentCommand = ffmpeg(input)
     .videoFilter({
       filter: "subtitles",
       options: ffescape(input)
@@ -112,6 +126,7 @@ function resetCurrent() {
   transcodingStatus.working = false;
   transcodingStatus.currentFile = "";
   transcodingStatus.currentProgress = 0;
+  currentCommand = undefined;
 }
 
 function prepareConfig(config: Config) {
@@ -147,12 +162,27 @@ function isTranscodable(filename: string): Promise<boolean> {
   });
 }
 
-function asyncFilter<T>(array: T[], predicate : (T) => Promise<boolean>) : Promise<T[]> {
+function asyncFilter<T>(array: T[], predicate: (T) => Promise<boolean>): Promise<T[]> {
   let promises = [];
   array.forEach(val => {
     promises.push(predicate(val));
   })
   return Promise.all(promises).then(results => array.filter((val, i) => results[i]))
+}
+
+function deleteFromQueue(id: string) {
+  let index = transcodingStatus.queue.findIndex(it => it.id === id);
+  if (index >= 0) {
+    throw "Item not found";
+  } else {
+    transcodingStatus.queue.splice(index, 1);
+  }
+}
+
+function kill() {
+  if (currentCommand) {
+    currentCommand.kill();
+  }
 }
 
 main();
