@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "tsc && node ./build/index.js",
-    "install": "copyfiles -u 3 node_modules/bootstrap/dist/**/* server/static"
+    "start": "node ./build/index.js",
+    "buildstart" : "tsc && npm run install && npm run start",
+    "install": "copyfiles -u 3 'node_modules/bootstrap/dist/**/*' server/static && copyfiles -u 2 'src/server/**/*' server/"
   },
   "repository": {
     "type": "git",
@@ -24,6 +25,7 @@
     "express": "^4.14.1",
     "fluent-ffmpeg": "^2.1.0",
     "inotify": "^1.4.1",
+    "node-uuid": "^1.4.7",
     "nunjucks": "^3.0.0"
   },
   "devDependencies": {
