@@ -1,14 +1,14 @@
 declare module 'inotify' {
-  type EventType = number;
-  type WatchDescriptor = number;
+  export type EventType = number;
+  export type WatchDescriptor = number;
 
-  interface WatchConfig {
+  export interface WatchConfig {
     path: string;
     watch_for: EventType;
     callback: (event: Event) => void;
   }
 
-  interface Event {
+  export interface Event {
     watch: WatchDescriptor;
     mask: EventType,
     cookie: number,
