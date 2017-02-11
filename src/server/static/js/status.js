@@ -1,7 +1,7 @@
 Vue.component('queued-anime', {
   props: ['anime'],
   methods: {
-    deleteAnime: function(anime) {
+    deleteAnime: function (anime) {
       fetch("/delete/" + anime.id, {
         credentials: "same-origin"
       }).then(it => it.json())
@@ -28,6 +28,14 @@ var vm = new Vue({
       } else {
         return 0;
       }
+    }
+  },
+  methods: {
+    kill: function () {
+      fetch("/kill", {
+        credentials: "same-origin"
+      }).then(it => it.json())
+        .then(it => vm.status = it.status)
     }
   }
 });

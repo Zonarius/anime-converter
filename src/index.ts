@@ -30,7 +30,9 @@ exp.get('/delete/:id', (req, res) => {
 })
 exp.get('kill', (req, res) => {
   kill();
-  res.send({message: "ok"});
+  setTimeout(() => {
+    res.send({message: "ok", status: transcodingStatus});
+  })
 })
 
 function main() {

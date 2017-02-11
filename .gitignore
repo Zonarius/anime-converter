@@ -2,5 +2,5 @@ node_modules
 npm-debug.log
 yarn.lock
 .vscode
-server/static
+server
 config.json
