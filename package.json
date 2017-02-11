@@ -1,0 +1,20 @@
+{
+  "name": "anime-converter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc && node ./build/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Zonarius/anime-converter.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Zonarius/anime-converter/issues"
+  },
+  "homepage": "https://github.com/Zonarius/anime-converter#readme"
+}
