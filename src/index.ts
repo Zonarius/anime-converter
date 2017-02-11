@@ -43,7 +43,11 @@ function main() {
     callback: fileChange
   })
   console.log("Watching %s...", config.inputDir)
-  initialAdd();
+  addFile("File1.mkv");
+  addFile("File2.mkv");
+  addFile("File3.mkv");
+  addFile("File4.mkv");
+  //initialAdd();
 }
 
 async function initialAdd() {
