@@ -16,5 +16,13 @@
   "bugs": {
     "url": "https://github.com/Zonarius/anime-converter/issues"
   },
-  "homepage": "https://github.com/Zonarius/anime-converter#readme"
+  "homepage": "https://github.com/Zonarius/anime-converter#readme",
+  "dependencies": {
+    "fluent-ffmpeg": "^2.1.0",
+    "inotify": "^1.4.1"
+  },
+  "devDependencies": {
+    "@types/fluent-ffmpeg": "^0.0.2",
+    "@types/node": "^7.0.5"
+  }
 }
