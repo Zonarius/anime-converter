@@ -1,7 +1,7 @@
 Vue.component('queued-anime', {
   props: ['anime'],
   computed: {
-    deleteUrl: function() {
+    deleteUrl: function () {
       if (this.anime) {
         return "/delete/" + this.anime.id
       } else {
@@ -19,9 +19,9 @@ var vm = new Vue({
     status: {}
   },
   computed: {
-    percent: function() {
+    percent: function () {
       if (this.status) {
-        return Math.round(this.status.currentProgress*10)/10;
+        return Math.round(this.status.currentProgress * 10) / 10;
       } else {
         return 0;
       }
@@ -30,8 +30,9 @@ var vm = new Vue({
 });
 
 function fetchStatus() {
-  fetch("/status")
-    .then(it => it.json())
+  fetch("/status", {
+    credentials: "same-origin"
+  }).then(it => it.json())
     .then(it => vm.status = it)
 }
 fetchStatus();
