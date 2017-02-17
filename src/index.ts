@@ -3,18 +3,12 @@ import * as Path from 'path';
 import ffmpeg = require('fluent-ffmpeg');
 import * as fs from 'fs';
 import * as express from 'express';
-import * as nunjucks from 'nunjucks';
 import * as uuid from 'node-uuid';
 
 const inotify = new Inotify();
 const config: Config = require('../config.json');
 const exp = express();
 prepareConfig(config);
-
-nunjucks.configure(Path.resolve(__dirname, "..", "server"), {
-  express: exp,
-  noCache: true
-})
 
 exp.use('/', express.static(Path.resolve(__dirname, "..", "server")))
 exp.get('/status', (req, res) => {
@@ -28,11 +22,23 @@ exp.get('/delete/:id', (req, res) => {
     res.send({ message });
   }
 })
-exp.get('kill', (req, res) => {
+exp.get('/kill', (req, res) => {
   kill();
   setTimeout(() => {
     res.send({message: "ok", status: transcodingStatus});
   })
+})
+
+exp.get('/addFolder', (req, res) => {
+  let path = req.query.path;
+  if (!path) {
+    return res.status(400).json({message: "Missing path query parameter"})
+  }
+  if (!fs.existsSync(path)) {
+    return res.status(404).json({message: "Could not find folder"})
+  }
+  addFolder(path);
+  res.send({message: "ok"});
 })
 
 function main() {
@@ -54,10 +60,14 @@ function main() {
   initialAdd();
 }
 
-async function initialAdd() {
-  console.log("adding all files from %s", config.inputDir)
-  let files = fs.readdirSync(config.inputDir);
-  files = files.filter(it => fs.statSync(Path.join(config.inputDir, it)).isFile())
+function initialAdd() : Promise<void> {
+  return addFolder(config.inputDir);
+}
+
+async function addFolder(folderPath: string) : Promise<void> {
+  console.log("adding all files from %s", folderPath)
+  let files = fs.readdirSync(folderPath);
+  files = files.filter(it => fs.statSync(Path.join(folderPath, it)).isFile())
   files = await asyncFilter(files, isTranscodable);
   files.forEach(addFile);
   workQueue();
